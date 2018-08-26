@@ -1,0 +1,90 @@
+---
+- name: Ensure directories exist
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ item.mode | default(0755) }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  with_items:
+    - path: "{{ docker_project_home }}"
+
+- name: Remove existing {{ docker_project_name }} container
+  docker_container:
+    name: "{{ docker_project_name }}"
+    state: absent
+  when: docker_project_remove_existing_container
+
+- name: Remove artifacts
+  file: state=absent path={{ item }}
+  with_items:
+    - "{{ docker_project_home }}/"
+    - /etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf
+    - /etc/nginx/sites-enabled/{{ nginx_index }}-{{ docker_project_name }}.conf
+  notify:
+    - restart nginx
+  when: docker_project_remove_existing_container
+
+- name: Log into private registry and force re-authorization
+  docker_login:
+    registry: "{{ registry_hostname }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_password }}"
+    reauthorize: yes
+  when: registry_username != "" and registry_password != ""
+
+- name: Find free port from pool
+  shell: |
+    i=0
+    while [ ${i} -lt $((({{ project_port_pool }})**2)) ]; do
+        PORT="`shuf -i {{ project_port_pool }} -n 1`"
+        nc -z {{ project_host }} $PORT || break
+        PORT=""
+        i=$[$i+1]
+    done
+    echo $PORT
+  register: free_port_output
+  when: project_port_pool != ""
+
+- debug:
+    msg: "Can't find free port from range {{ project_port_pool }}, used by default {{ project_port }}"
+  when: project_port_pool != "" and free_port_output.stdout == ""
+
+- debug:
+    msg: "Find free port {{ free_port_output.stdout }}"
+  when: project_port_pool != "" and free_port_output.stdout != ""
+
+- set_fact:
+    project_port: "{{ free_port_output.stdout | default(project_port) }}"
+  when: project_port_pool != ""
+
+- set_fact:
+    docker_project_app_ports:
+      - "{{ project_host }}:{{ project_port }}:{{ project_app_port }}"
+  when: project_port_pool != ""
+
+- name: Run docker project container
+  docker_container:
+    name: "{{ docker_project_name }}"
+    image: "{{ docker_project_image }}"
+    pull: "{{ docker_project_pull_image }}"
+    restart_policy: always
+    ports: "{{ docker_project_app_ports + docker_project_ports }}"
+    network_mode: "{{ docker_project_network_mode }}"
+    networks: "{{ docker_project_networks }}"
+    env: "{{ docker_project_env }}"
+    volumes: "{{ docker_project_volumes }}"
+    log_driver: "{{ docker_project_log_driver }}"
+    log_options: "{{ docker_project_log_options }}"
+
+- name: Copy nginx config
+  template: src=nginx-project.conf.j2 dest=/etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf
+  notify:
+    - restart nginx
+  when: project_port != ""
+
+- name: Enable config
+  file: src=/etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf dest=/etc/nginx/sites-enabled/{{ nginx_index }}-{{ docker_project_name }}.conf owner=root group=root state=link
+  notify:
+    - restart nginx
+  when: project_port != ""

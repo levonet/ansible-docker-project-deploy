@@ -1,0 +1,33 @@
+---
+# Базові налаштування (потрібно змінювати)
+project_tag: latest
+project_host: "127.0.0.1"
+project_port: 8080
+project_app_port: 8080
+project_port_pool: ""
+project_name: ""
+project_hostname: "{{ project_tag }}.{{ project_name }}.localhost"
+nginx_index: 50
+registry_username: ""
+registry_password: ""
+registry_hostname: localhost
+registry_container: ""
+
+# Настройки докер-осередку (можливо змінювати)
+docker_project_image: "{{ registry_hostname }}/{{ registry_container }}:{{ project_tag }}"
+docker_project_name: "{{ project_name }}-{{ project_tag }}"
+docker_project_home: "/opt/{{ docker_project_name }}"
+docker_project_env:
+docker_project_volumes: []
+docker_project_ports: []
+docker_project_network_mode:
+docker_project_networks: []
+docker_project_remove_existing_container: yes
+
+# Настройки запуску контейнера (не змінювати)
+docker_project_app_ports: []
+docker_project_pull_image: yes
+docker_project_log_driver: syslog
+docker_project_log_options:
+  syslog-facility: local0
+  tag: "{{ docker_project_name }}"
