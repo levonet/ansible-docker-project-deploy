@@ -1,14 +1,4 @@
 ---
-- name: Ensure directories exist
-  file:
-    state: directory
-    path: "{{ item.path }}"
-    mode: "{{ item.mode | default(0755) }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-  with_items:
-    - path: "{{ docker_project_home }}"
-
 - name: Remove existing {{ docker_project_name }} container
   docker_container:
     name: "{{ docker_project_name }}"
@@ -19,11 +9,27 @@
   file: state=absent path={{ item }}
   with_items:
     - "{{ docker_project_home }}/"
-    - /etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf
-    - /etc/nginx/sites-enabled/{{ nginx_index }}-{{ docker_project_name }}.conf
+    - /etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
+    - /etc/nginx/sites-enabled/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
   notify:
     - restart nginx
   when: docker_project_remove_existing_container
+
+- name: Ensure docker volume mapping host directories exist
+  file:
+    state: directory
+    path: "{{ item.split(':')[0] }}"
+    mode: "{{ '0700' if item == docker_project_home else docker_project_directory_mode }}"
+    owner: "{{ 'root' if item == docker_project_home else docker_project_directory_owner }}"
+    group: "{{ 'root' if item == docker_project_home else docker_project_directory_group }}"
+  with_items:
+    - "{{ [ docker_project_home ] + docker_project_directory_volumes }}"
+
+- name: Create config files
+  copy:
+    dest: "{{ item.dest }}"
+    content: "{{ item.content }}"
+  with_items: "{{ project_configs }}"
 
 - name: Log into private registry and force re-authorization
   docker_login:
@@ -69,6 +75,7 @@
     image: "{{ docker_project_image }}"
     pull: "{{ docker_project_pull_image }}"
     restart_policy: always
+    restart: "{{ docker_project_restart }}"
     ports: "{{ docker_project_app_ports + docker_project_ports }}"
     network_mode: "{{ docker_project_network_mode }}"
     networks: "{{ docker_project_networks }}"
@@ -78,13 +85,13 @@
     log_options: "{{ docker_project_log_options }}"
 
 - name: Copy nginx config
-  template: src=nginx-project.conf.j2 dest=/etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf
+  template: src=nginx-project.conf.j2 dest=/etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
   notify:
     - restart nginx
   when: project_port != ""
 
 - name: Enable config
-  file: src=/etc/nginx/sites-available/{{ nginx_index }}-{{ docker_project_name }}.conf dest=/etc/nginx/sites-enabled/{{ nginx_index }}-{{ docker_project_name }}.conf owner=root group=root state=link
+  file: src=/etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf dest=/etc/nginx/sites-enabled/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf owner=root group=root state=link
   notify:
     - restart nginx
   when: project_port != ""
