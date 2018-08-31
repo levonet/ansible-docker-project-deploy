@@ -1,14 +1,29 @@
 # Please do not modify this file manually
 server {
+    {% if not nginx_only_ssl %}
     include include/listen;
+    {% endif %}
+    {% if nginx_include_ssl %}
+    include include/listen_ssl;
+    {% endif %}
 
     server_name {{ project_hostname }};
     access_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_access.log;
     error_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_error.log error;
 
     location / {
+        {% if nginx_location_conf is defined %}
+        {{ nginx_location_conf }}
+        {% endif %}
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $http_host;
         proxy_pass http://{{ project_host }}:{{ project_port }};
     }
 }
+{% if nginx_only_ssl %}
+server {
+    include include/listen;
+    server_name {{ project_hostname }};
+    return 301 https://$host$request_uri;
+}
+{% endif %}
