@@ -76,7 +76,7 @@
     pull: "{{ docker_project_pull_image }}"
     restart_policy: always
     restart: "{{ docker_project_restart }}"
-    command: docker_project_command
+    command: "{{ docker_project_command }}"
     ports: "{{ docker_project_app_ports + docker_project_ports }}"
     network_mode: "{{ docker_project_network_mode }}"
     networks: "{{ docker_project_networks }}"
