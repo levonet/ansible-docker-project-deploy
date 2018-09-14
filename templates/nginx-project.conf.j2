@@ -11,6 +11,10 @@ server {
     access_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_access.log;
     error_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_error.log error;
 
+    {% if nginx_server_conf is defined %}
+    {{ nginx_server_conf }}
+    {% endif %}
+
     location / {
         {% if nginx_location_conf is defined %}
         {{ nginx_location_conf }}

@@ -14,6 +14,7 @@ Deploy project in a docker container.
 - `nginx_conf_prefix` (default: 50-): Prefix in name of nginx config.
 - `nginx_include_ssl` (default: false): Include ssl configuration.
 - `nginx_only_ssl` (default: false): Redirect to https from http.
+- `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
 - `registry_username` (optional): Docker registry username.
 - `registry_password` (optional): Docker registry password.
@@ -22,6 +23,7 @@ Deploy project in a docker container.
 - `docker_project_image` (default: "{{ registry_hostname }}/{{ registry_container }}:{{ project_tag }}")
 - `docker_project_name` (default: "{{ project_name }}-{{ project_tag }}")
 - `docker_project_home` (default: "/opt/{{ docker_project_name }}")
+- `docker_project_command` (optional) Command to execute when the container starts.
 - `docker_project_env` (optional)
 - `docker_project_directory_mode` (default: 0755)
 - `docker_project_directory_owner` (default: root)

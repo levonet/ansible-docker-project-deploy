@@ -11,6 +11,7 @@ project_configs: []
 nginx_conf_prefix: 50-
 nginx_include_ssl: false
 nginx_only_ssl: false
+nginx_server_conf:
 nginx_location_conf:
 registry_username: ""
 registry_password: ""
@@ -21,6 +22,7 @@ registry_container: ""
 docker_project_image: "{{ registry_hostname }}/{{ registry_container }}:{{ project_tag }}"
 docker_project_name: "{{ project_name }}-{{ project_tag }}"
 docker_project_home: "/opt/{{ docker_project_name }}"
+docker_project_command:
 docker_project_env:
 docker_project_directory_mode: '0755'
 docker_project_directory_owner: root
