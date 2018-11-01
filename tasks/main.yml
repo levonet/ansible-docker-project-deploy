@@ -24,6 +24,7 @@
     group: "{{ 'root' if item == docker_project_home else docker_project_directory_group }}"
   with_items:
     - "{{ [ docker_project_home ] + docker_project_directory_volumes }}"
+  when: (docker_project_directory_volumes | length > 0)
 
 - name: Create config files
   copy:
