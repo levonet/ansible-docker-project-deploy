@@ -1,3 +1,8 @@
 ---
-- name: restart nginx
+- name: Test nginx config
+  command: nginx -t
+  listen: restart nginx
+
+- name: Restart nginx service
   service: name=nginx state=restarted
+  listen: restart nginx
