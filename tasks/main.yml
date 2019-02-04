@@ -24,7 +24,7 @@
     group: "{{ 'root' if item == docker_project_home else docker_project_directory_group }}"
   with_items:
     - "{{ [ docker_project_home ] + docker_project_directory_volumes }}"
-  when: (docker_project_directory_volumes | length > 0)
+  when: docker_project_directory_volumes | length > 0
 
 - name: Create config files
   copy:
@@ -38,37 +38,44 @@
     username: "{{ registry_username }}"
     password: "{{ registry_password }}"
     reauthorize: yes
-  when: registry_username != "" and registry_password != ""
+  when: registry_username | length > 0 and registry_password | length > 0
 
 - name: Find free port from pool
   shell: |
     i=0
-    while [ ${i} -lt $((({{ project_port_pool }})**2)) ]; do
-        PORT="`shuf -i {{ project_port_pool }} -n 1`"
-        nc -z {{ project_host }} $PORT || break
+    while [ ${i} -lt $(((${GET_FREE_PORT_POOL})**2)) ]; do
+        PORT="`shuf -i ${GET_FREE_PORT_POOL} -n 1`"
+        nc -z ${GET_FREE_PORT_HOST} ${PORT} || break
         PORT=""
         i=$[$i+1]
     done
-    echo $PORT
+    echo ${PORT}
+  environment:
+    GET_FREE_PORT_POOL: "{{ project_port_pool }}"
+    GET_FREE_PORT_HOST: "{{ project_host }}"
   register: free_port_output
-  when: project_port_pool != ""
+  when: project_port_pool | regex_search("^\d+-\d+$")
+  tags:
+  - skip_ansible_lint
 
 - debug:
     msg: "Can't find free port from range {{ project_port_pool }}, used by default {{ project_port }}"
-  when: project_port_pool != "" and free_port_output.stdout == ""
+  when: project_port_pool | regex_search("^\d+-\d+$") and free_port_output.stdout | length == 0
 
 - debug:
     msg: "Find free port {{ free_port_output.stdout }}"
-  when: project_port_pool != "" and free_port_output.stdout != ""
+  when: project_port_pool | regex_search("^\d+-\d+$") and free_port_output.stdout | length > 0
 
-- set_fact:
+- name: Set variable project_port
+  set_fact:
     project_port: "{{ free_port_output.stdout | default(project_port) }}"
-  when: project_port_pool != ""
+  when: project_port_pool | regex_search("^\d+-\d+$")
 
-- set_fact:
+- name: Set variable docker_project_app_ports
+  set_fact:
     docker_project_app_ports:
       - "{{ project_host }}:{{ project_port }}:{{ project_app_port }}"
-  when: project_port_pool != ""
+  when: project_port_pool | regex_search("^\d+-\d+$")
 
 - name: Run docker project container
   docker_container:
@@ -87,13 +94,20 @@
     log_options: "{{ docker_project_log_options }}"
 
 - name: Copy nginx config
-  template: src=nginx-project.conf.j2 dest=/etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
+  template:
+    src: nginx-project.conf.j2
+    dest: /etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
   notify:
     - restart nginx
-  when: project_port != ""
+  when: project_port | length > 0
 
 - name: Enable config
-  file: src=/etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf dest=/etc/nginx/sites-enabled/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf owner=root group=root state=link
+  file:
+    src: /etc/nginx/sites-available/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
+    dest: /etc/nginx/sites-enabled/{{ nginx_conf_prefix }}{{ docker_project_name }}.conf
+    state: link
+    owner: root
+    group: root
   notify:
     - restart nginx
-  when: project_port != ""
+  when: project_port | length > 0

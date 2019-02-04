@@ -28,7 +28,7 @@ galaxy_info:
       versions:
         - all
   cloud_platforms: []
-  galaxy_tags: 
+  galaxy_tags:
    - ci
    - cd
    - docker
