@@ -17,6 +17,8 @@ Deploy project in a docker container.
 - `nginx_http_conf` (optional): Extra configuration for app nginx `http` section.
 - `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
+- `nginx_test_command` (default: nginx -t)
+- `nginx_service_name` (default: nginx): Name of systemd service.
 - `registry_username` (optional): Docker registry username.
 - `registry_password` (optional): Docker registry password.
 - `registry_hostname` (default: localhost): Docker registry address.

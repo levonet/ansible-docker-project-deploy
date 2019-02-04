@@ -1,8 +1,10 @@
 ---
 - name: Test nginx config
-  command: nginx -t
+  command: "{{ nginx_test_command }}"
   listen: restart nginx
 
 - name: Restart nginx service
-  service: name=nginx state=restarted
+  service:
+    state: restarted
+    name: "{{ nginx_service_name }}"
   listen: restart nginx
