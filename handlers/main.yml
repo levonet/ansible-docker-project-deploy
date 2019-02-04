@@ -3,7 +3,7 @@
   command: "{{ nginx_test_command }}"
   listen: restart nginx
 
-- name: Restart nginx service
+- name: restart nginx
   service:
     state: restarted
     name: "{{ nginx_service_name }}"
