@@ -14,6 +14,7 @@ Deploy project in a docker container.
 - `nginx_conf_prefix` (default: 50-): Prefix in name of nginx config.
 - `nginx_include_ssl` (default: false): Include ssl configuration.
 - `nginx_only_ssl` (default: false): Redirect to https from http.
+- `nginx_http_conf` (optional): Extra configuration for app nginx `http` section.
 - `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
 - `registry_username` (optional): Docker registry username.

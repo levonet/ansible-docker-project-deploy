@@ -11,6 +11,7 @@ project_configs: []
 nginx_conf_prefix: 50-
 nginx_include_ssl: false
 nginx_only_ssl: false
+nginx_http_conf:
 nginx_server_conf:
 nginx_location_conf:
 registry_username: ""
