@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+  - role: ../..
+    project_tag: PR-21
+    project_name: my_app
+    project_app_port: 5000
+    project_port_pool: 5800-5899
+    project_hostname: "{{ project_tag }}.{{ project_name }}.myhost.com"
+    docker_project_directory_owner: 1001
+    docker_project_directory_group: 1001
+    docker_project_directory_volumes:
+    - "{{ docker_project_home }}/conf:/app/config:ro"
+    - "{{ docker_project_home }}/storage:/app/storage"
+    project_configs:
+    - dest: "{{ docker_project_home }}/conf/app.ini"
+      content: |
+        [server]
+        root_url = {{ project_hostname }}
+    nginx_conf_prefix: 35-
+    registry_hostname: registry.myhost.com
+    registry_container: my_org/my_app
+    registry_username: test
+    registry_password: secret
