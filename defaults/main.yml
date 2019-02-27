@@ -9,8 +9,9 @@ project_name: ""
 project_hostname: "{{ project_tag }}.{{ project_name }}.localhost"
 project_configs: []
 nginx_conf_prefix: 50-
-nginx_include_ssl: false
-nginx_only_ssl: false
+nginx_include_root_location: yes
+nginx_include_ssl: no
+nginx_only_ssl: no
 nginx_http_conf:
 nginx_server_conf:
 nginx_location_conf:
