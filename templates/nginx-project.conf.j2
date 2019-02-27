@@ -18,6 +18,7 @@ server {
 {{ nginx_server_conf }}
 {%- endif %}
 
+{% if nginx_include_root_location %}
     location / {
 {% if nginx_location_conf is defined %}
 {{ nginx_location_conf }}
@@ -27,6 +28,7 @@ server {
         proxy_set_header Host $http_host;
         proxy_pass http://{{ project_host }}:{{ project_port }};
     }
+{%- endif %}
 }
 {% if nginx_only_ssl %}
 server {

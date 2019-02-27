@@ -12,8 +12,9 @@ Deploy project in a docker container.
 - `project_name` (required): This name used in name of home folder path, hostname and in name of container.
 - `project_hostname` (default: "{{ project_tag }}.{{ project_name }}.localhost")
 - `nginx_conf_prefix` (default: 50-): Prefix in name of nginx config.
-- `nginx_include_ssl` (default: false): Include ssl configuration.
-- `nginx_only_ssl` (default: false): Redirect to https from http.
+- `nginx_include_root_location` (default: yes) Include root location section with proxy_pass on service.
+- `nginx_include_ssl` (default: no): Include ssl configuration.
+- `nginx_only_ssl` (default: no): Redirect to https from http.
 - `nginx_http_conf` (optional): Extra configuration for app nginx `http` section.
 - `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
