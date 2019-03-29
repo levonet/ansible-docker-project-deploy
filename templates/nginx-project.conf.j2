@@ -11,8 +11,11 @@ server {
 {%- endif %}
 
     server_name {{ project_hostname }};
+
+{% if nginx_logs %}
     access_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_access.log;
     error_log /var/log/nginx/{{ project_name }}-{{ project_tag }}_error.log error;
+{%- endif %}
 
 {% if nginx_server_conf is defined %}
 {{ nginx_server_conf }}

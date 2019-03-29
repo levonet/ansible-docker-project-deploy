@@ -16,6 +16,7 @@ Deploy project in a docker container.
 - `nginx_include_root_location` (default: yes) Include root location section with proxy_pass on service.
 - `nginx_include_ssl` (default: no): Include ssl configuration.
 - `nginx_only_ssl` (default: no): Redirect to https from http.
+- `nginx_logs` (default: yes): Switch on/off logging.
 - `nginx_http_conf` (optional): Extra configuration for app nginx `http` section.
 - `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
