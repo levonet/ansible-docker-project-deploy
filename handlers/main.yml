@@ -4,7 +4,5 @@
   listen: restart nginx
 
 - name: restart nginx
-  service:
-    state: restarted
-    name: "{{ nginx_service_name }}"
+  command: "{{ nginx_reload_command }}"
   listen: restart nginx

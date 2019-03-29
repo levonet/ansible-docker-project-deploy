@@ -16,7 +16,7 @@ nginx_http_conf:
 nginx_server_conf:
 nginx_location_conf:
 nginx_test_command: nginx -t
-nginx_service_name: nginx
+nginx_reload_command: nginx -s reload
 registry_username: ""
 registry_password: ""
 registry_hostname: localhost

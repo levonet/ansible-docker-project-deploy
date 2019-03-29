@@ -1,4 +1,5 @@
 # CI: Deploy docker project Role
+[![Build Status](https://travis-ci.org/levonet/ansible-docker-project-deploy.svg?branch=master)](https://travis-ci.org/levonet/ansible-docker-project-deploy)
 
 Deploy project in a docker container.
 
@@ -19,7 +20,7 @@ Deploy project in a docker container.
 - `nginx_server_conf` (optional): Extra configuration for app nginx `server` section.
 - `nginx_location_conf` (optional): Extra configuration for app nginx `location` section.
 - `nginx_test_command` (default: nginx -t)
-- `nginx_service_name` (default: nginx): Name of systemd service.
+- `nginx_reload_command` (default: nginx -s reload)
 - `registry_username` (optional): Docker registry username.
 - `registry_password` (optional): Docker registry password.
 - `registry_hostname` (default: localhost): Docker registry address.
